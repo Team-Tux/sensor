@@ -9,7 +9,7 @@ pub struct SensorPacket {
     pub longitude: f64,
     pub environment: Environment,
     pub fingerprint: u64,
-    pub rssi: i32,
+    pub rssi: i8,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]

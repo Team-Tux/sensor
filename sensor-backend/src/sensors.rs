@@ -20,7 +20,7 @@ pub struct SensorCandidate {
     pub latitude: f64,
     pub longitude: f64,
     pub environment: Environment,
-    pub rssi: i32,
+    pub rssi: i8,
 }
 
 #[derive(Clone, Serialize)]
@@ -30,7 +30,7 @@ pub struct Trilateration {
     pub longitude: f64,
 }
 
-type MeasurementsMap = HashMap<u64, HashMap<u8, (i32, Instant)>>;
+type MeasurementsMap = HashMap<u64, HashMap<u8, (i8, Instant)>>;
 
 pub struct SensorService {
     sensors: RwLock<HashMap<u8, Sensor>>,
@@ -72,7 +72,7 @@ impl SensorService {
         lock.values().cloned().collect()
     }
 
-    pub async fn add_measurement(&self, fingerprint: u64, sensor_id: u8, rssi: i32) {
+    pub async fn add_measurement(&self, fingerprint: u64, sensor_id: u8, rssi: i8) {
         let mut lock = self.measurements.write().await;
 
         let now = Instant::now();
