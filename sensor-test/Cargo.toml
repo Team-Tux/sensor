@@ -1,0 +1,10 @@
+[package]
+name = "sensor-test"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+sensor-lib = { path = "../sensor-lib" }
+
+anyhow = "1.0"
+postcard = { version = "1.1", features = ["alloc"] }
