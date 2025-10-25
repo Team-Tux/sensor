@@ -4,6 +4,7 @@ use axum::response::IntoResponse;
 use axum::routing::get;
 
 mod sensors;
+mod trilaterations;
 
 use crate::AppState;
 
@@ -11,6 +12,7 @@ pub fn api(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health))
         .nest("/sensors", sensors::routes())
+        .nest("/trilaterations", trilaterations::routes())
         .with_state(state)
 }
 
