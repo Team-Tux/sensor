@@ -24,7 +24,7 @@ pub enum Environment {
 }
 
 impl Environment {
-    fn as_f64(&self) -> f64 {
+    pub fn as_f64(&self) -> f64 {
         match self {
             Environment::FreeSpace => 2.0,
             Environment::UrbanArea => 2.7,
