@@ -1,27 +1,29 @@
+use crate::rssi::trilaterate;
+use sensor_lib::Environment;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::sync::RwLock;
 use tokio::time::Instant;
 
-use crate::rssi::trilaterate;
-
 const MAX_MEASUREMENT_AGE: Duration = Duration::from_secs(60);
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct Sensor {
     pub id: u8,
     pub latitude: f64,
     pub longitude: f64,
+    pub environment: Environment,
 }
 
 pub struct SensorCandidate {
     pub latitude: f64,
     pub longitude: f64,
+    pub environment: Environment,
     pub rssi: i32,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct Trilateration {
     pub fingerprint: u64,
     pub latitude: f64,
@@ -31,9 +33,9 @@ pub struct Trilateration {
 type MeasurementsMap = HashMap<u64, HashMap<u8, (i32, Instant)>>;
 
 pub struct SensorService {
-    sensors: RwLock<HashMap<u8, (f64, f64)>>,
+    sensors: RwLock<HashMap<u8, Sensor>>,
     measurements: RwLock<MeasurementsMap>,
-    trilaterations: RwLock<HashMap<u64, (f64, f64)>>,
+    trilaterations: RwLock<HashMap<u64, Trilateration>>,
 }
 
 impl SensorService {
@@ -45,22 +47,29 @@ impl SensorService {
         }
     }
 
-    pub async fn add_sensor(&self, id: u8, latitude: f64, longitude: f64) {
+    pub async fn add_sensor(
+        &self,
+        id: u8,
+        latitude: f64,
+        longitude: f64,
+        environment: Environment,
+    ) {
         let mut lock = self.sensors.write().await;
 
-        lock.insert(id, (latitude, longitude));
+        let sensor = Sensor {
+            id,
+            latitude,
+            longitude,
+            environment,
+        };
+
+        lock.insert(id, sensor);
     }
 
     pub async fn get_sensors(&self) -> Vec<Sensor> {
         let lock = self.sensors.read().await;
 
-        lock.iter()
-            .map(|(&id, &(latitude, longitude))| Sensor {
-                id,
-                latitude,
-                longitude,
-            })
-            .collect()
+        lock.values().cloned().collect()
     }
 
     pub async fn add_measurement(&self, fingerprint: u64, sensor_id: u8, rssi: i32) {
@@ -79,9 +88,10 @@ impl SensorService {
                 let candidates: Option<Vec<SensorCandidate>> = sensors
                     .iter()
                     .map(|(id, (rssi, _))| {
-                        s_lock.get(id).map(|pos| SensorCandidate {
-                            latitude: pos.0,
-                            longitude: pos.1,
+                        s_lock.get(id).map(|sensor| SensorCandidate {
+                            latitude: sensor.latitude,
+                            longitude: sensor.longitude,
+                            environment: sensor.environment,
                             rssi: *rssi,
                         })
                     })
@@ -94,7 +104,14 @@ impl SensorService {
                         trilaterate(&candidates[0], &candidates[1], &candidates[2]).await;
 
                     let mut t_lock = self.trilaterations.write().await;
-                    t_lock.insert(fingerprint, (latitude, longitude));
+
+                    let trilateration = Trilateration {
+                        fingerprint,
+                        latitude,
+                        longitude,
+                    };
+
+                    t_lock.insert(fingerprint, trilateration);
                     drop(t_lock);
 
                     lock.remove(&fingerprint);
@@ -115,12 +132,6 @@ impl SensorService {
     pub async fn get_trilaterations(&self) -> Vec<Trilateration> {
         let lock = self.trilaterations.read().await;
 
-        lock.iter()
-            .map(|(&fingerprint, &(latitude, longitude))| Trilateration {
-                fingerprint,
-                latitude,
-                longitude,
-            })
-            .collect()
+        lock.values().cloned().collect()
     }
 }

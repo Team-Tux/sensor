@@ -1,3 +1,4 @@
+use sensor_lib::Environment::FreeSpace;
 use sensor_lib::SensorPacket;
 use std::net::UdpSocket;
 
@@ -11,6 +12,7 @@ fn main() -> anyhow::Result<()> {
         longitude: 0.0,
         rssi: -50,
         fingerprint: 0xABC123,
+        environment: FreeSpace,
     };
     let bytes = postcard::to_allocvec(&packet)?;
 
@@ -22,6 +24,7 @@ fn main() -> anyhow::Result<()> {
         longitude: 4.0,
         rssi: -50,
         fingerprint: 0xABC123,
+        environment: FreeSpace,
     };
     let bytes = postcard::to_allocvec(&packet)?;
 
@@ -33,6 +36,7 @@ fn main() -> anyhow::Result<()> {
         longitude: 2.0,
         rssi: -50,
         fingerprint: 0xABC123,
+        environment: FreeSpace,
     };
     let bytes = postcard::to_allocvec(&packet)?;
 

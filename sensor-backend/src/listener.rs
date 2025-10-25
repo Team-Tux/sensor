@@ -27,7 +27,12 @@ pub async fn run_packet_listener(sensor_service: Arc<SensorService>) -> anyhow::
                 );
 
                 sensor_service
-                    .add_sensor(packet.sensor_id, packet.latitude, packet.longitude)
+                    .add_sensor(
+                        packet.sensor_id,
+                        packet.latitude,
+                        packet.longitude,
+                        packet.environment,
+                    )
                     .await;
 
                 sensor_service
