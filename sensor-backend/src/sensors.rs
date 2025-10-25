@@ -11,21 +11,21 @@ const MAX_MEASUREMENT_AGE: Duration = Duration::from_secs(60);
 #[derive(Serialize)]
 pub struct Sensor {
     pub id: u8,
-    pub x: f64,
-    pub y: f64,
+    pub latitude: f64,
+    pub longitude: f64,
 }
 
 pub struct SensorCandidate {
-    pub x: f64,
-    pub y: f64,
+    pub latitude: f64,
+    pub longitude: f64,
     pub rssi: i32,
 }
 
 #[derive(Serialize)]
 pub struct Trilateration {
     pub fingerprint: u64,
-    pub x: f64,
-    pub y: f64,
+    pub latitude: f64,
+    pub longitude: f64,
 }
 
 type MeasurementsMap = HashMap<u64, HashMap<u8, (i32, Instant)>>;
@@ -45,17 +45,21 @@ impl SensorService {
         }
     }
 
-    pub async fn add_sensor(&self, id: u8, x: f64, y: f64) {
+    pub async fn add_sensor(&self, id: u8, latitude: f64, longitude: f64) {
         let mut lock = self.sensors.write().await;
 
-        lock.insert(id, (x, y));
+        lock.insert(id, (latitude, longitude));
     }
 
     pub async fn get_sensors(&self) -> Vec<Sensor> {
         let lock = self.sensors.read().await;
 
         lock.iter()
-            .map(|(&id, &(x, y))| Sensor { id, x, y })
+            .map(|(&id, &(latitude, longitude))| Sensor {
+                id,
+                latitude,
+                longitude,
+            })
             .collect()
     }
 
@@ -76,8 +80,8 @@ impl SensorService {
                     .iter()
                     .map(|(id, (rssi, _))| {
                         s_lock.get(id).map(|pos| SensorCandidate {
-                            x: pos.0,
-                            y: pos.1,
+                            latitude: pos.0,
+                            longitude: pos.1,
                             rssi: *rssi,
                         })
                     })
@@ -86,10 +90,11 @@ impl SensorService {
                 drop(s_lock);
 
                 if let Some(candidates) = candidates {
-                    let (x, y) = trilaterate(&candidates[0], &candidates[1], &candidates[2]).await;
+                    let (latitude, longitude) =
+                        trilaterate(&candidates[0], &candidates[1], &candidates[2]).await;
 
                     let mut t_lock = self.trilaterations.write().await;
-                    t_lock.insert(fingerprint, (x, y));
+                    t_lock.insert(fingerprint, (latitude, longitude));
                     drop(t_lock);
 
                     lock.remove(&fingerprint);
@@ -111,7 +116,11 @@ impl SensorService {
         let lock = self.trilaterations.read().await;
 
         lock.iter()
-            .map(|(&fingerprint, &(x, y))| Trilateration { fingerprint, x, y })
+            .map(|(&fingerprint, &(latitude, longitude))| Trilateration {
+                fingerprint,
+                latitude,
+                longitude,
+            })
             .collect()
     }
 }

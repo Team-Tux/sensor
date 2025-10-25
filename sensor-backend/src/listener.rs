@@ -18,12 +18,16 @@ pub async fn run_packet_listener(sensor_service: Arc<SensorService>) -> anyhow::
         match postcard::from_bytes::<SensorPacket>(data) {
             Ok(packet) => {
                 info!(
-                    "Received packet from sensor {} (X: {}, Y: {}): RSSI {}, Fingerprint {}",
-                    packet.sensor_id, packet.pos_x, packet.pos_y, packet.rssi, packet.fingerprint
+                    "Received packet from sensor {} (Latitude: {}, Longitude: {}): RSSI {}, Fingerprint {}",
+                    packet.sensor_id,
+                    packet.latitude,
+                    packet.longitude,
+                    packet.rssi,
+                    packet.fingerprint
                 );
 
                 sensor_service
-                    .add_sensor(packet.sensor_id, packet.pos_x, packet.pos_y)
+                    .add_sensor(packet.sensor_id, packet.latitude, packet.longitude)
                     .await;
 
                 sensor_service
