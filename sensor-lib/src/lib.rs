@@ -1,3 +1,5 @@
+#![no_std]
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
