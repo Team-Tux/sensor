@@ -1,47 +1,42 @@
 use axum::Router;
-use axum::routing::get;
-use sensor_lib::SensorPacket;
-use tokio::net::{TcpListener, UdpSocket};
+use std::sync::Arc;
+use tokio::net::TcpListener;
 use tracing::{error, info};
+
+use crate::api::api;
+use crate::listener::run_packet_listener;
+use crate::sensors::SensorService;
+
+mod api;
+mod listener;
+mod rssi;
+mod sensors;
+
+#[derive(Clone)]
+pub struct AppState {
+    sensor_service: Arc<SensorService>,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
+    let sensor_service = Arc::new(SensorService::new());
+
+    let sensor_service_clone = sensor_service.clone();
     tokio::spawn(async {
-        if let Err(e) = run_packet_listener().await {
+        if let Err(e) = run_packet_listener(sensor_service_clone).await {
             error!("Failed to run UDP listener: {}", e);
         }
     });
 
-    let app = Router::new().route("/health", get(|| async { "Healthy" }));
+    let state = AppState { sensor_service };
+
+    let app = Router::new().nest("/api", api(state));
 
     let listener = TcpListener::bind("0.0.0.0:8080").await?;
 
     info!("Starting HTTP server on {}", listener.local_addr()?);
 
     Ok(axum::serve(listener, app).await?)
-}
-
-async fn run_packet_listener() -> anyhow::Result<()> {
-    let socket = UdpSocket::bind("0.0.0.0:3000").await?;
-    info!("Running UDP listener on {}", socket.local_addr()?);
-
-    let mut buf = [0u8; 1024];
-
-    loop {
-        let (len, _) = socket.recv_from(&mut buf).await?;
-
-        let data = &buf[..len];
-
-        match postcard::from_bytes::<SensorPacket>(data) {
-            Ok(packet) => {
-                info!(
-                    "Received packet from sensor {}: RSSI {}, Fingerprint {}",
-                    packet.sensor_id, packet.rssi, packet.fingerprint
-                );
-            }
-            Err(e) => error!("Failed to deserialize packet: {}", e),
-        }
-    }
 }
