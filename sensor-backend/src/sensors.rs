@@ -9,7 +9,7 @@ use tokio::time::Instant;
 use crate::coords::transform_local_to_global;
 use crate::rssi::{calculate_rssi_median, trilaterate};
 
-const MIN_MEASUREMENT_ENTRIES: usize = 3;
+const MIN_MEASUREMENT_ENTRIES: usize = 10;
 const MAX_MEASUREMENT_AGE: Duration = Duration::from_secs(60);
 
 #[derive(Clone, Serialize)]
