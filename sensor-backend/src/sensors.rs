@@ -1,10 +1,12 @@
-use crate::rssi::trilaterate;
-use sensor_lib::Environment;
-use serde::Serialize;
 use std::collections::HashMap;
 use std::time::Duration;
+
+use sensor_lib::Environment;
+use serde::Serialize;
 use tokio::sync::RwLock;
 use tokio::time::Instant;
+
+use crate::rssi::trilaterate;
 
 const MAX_MEASUREMENT_AGE: Duration = Duration::from_secs(60);
 

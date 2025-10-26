@@ -1,6 +1,8 @@
-use axum::Router;
 use std::sync::Arc;
+
+use axum::Router;
 use tokio::net::TcpListener;
+use tower_http::cors::CorsLayer;
 use tracing::{error, info};
 
 use crate::api::api;
@@ -32,7 +34,9 @@ async fn main() -> anyhow::Result<()> {
 
     let state = AppState { sensor_service };
 
-    let app = Router::new().nest("/api", api(state));
+    let app = Router::new()
+        .nest("/api", api(state))
+        .layer(CorsLayer::permissive());
 
     let listener = TcpListener::bind("0.0.0.0:8080").await?;
 

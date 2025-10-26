@@ -1,8 +1,10 @@
-use crate::sensors::SensorService;
-use sensor_lib::SensorPacket;
 use std::sync::Arc;
+
+use sensor_lib::SensorPacket;
 use tokio::net::UdpSocket;
 use tracing::{error, info};
+
+use crate::sensors::SensorService;
 
 pub async fn run_packet_listener(sensor_service: Arc<SensorService>) -> anyhow::Result<()> {
     let socket = UdpSocket::bind("0.0.0.0:3000").await?;

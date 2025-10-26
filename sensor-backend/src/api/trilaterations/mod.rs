@@ -1,10 +1,11 @@
+use std::time::Duration;
+
 use axum::extract::State;
 use axum::extract::ws::{Message, Utf8Bytes, WebSocket, WebSocketUpgrade};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::{Json, Router};
-use std::time::Duration;
 use tokio::time::interval;
 use tracing::error;
 
