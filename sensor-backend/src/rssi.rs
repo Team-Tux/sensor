@@ -1,4 +1,7 @@
+use std::collections::VecDeque;
+
 use sensor_lib::Environment;
+use tokio::time::Instant;
 
 use crate::sensors::SensorCandidate;
 
@@ -37,4 +40,12 @@ pub async fn trilaterate(
     let latitude = (a * f - c * d) / denom;
 
     (latitude, longitude)
+}
+
+pub fn calculate_rssi_median(queue: &VecDeque<(i8, Instant)>) -> i8 {
+    let mut values: Vec<i8> = queue.iter().map(|(rssi, _)| *rssi).collect();
+
+    values.sort_unstable();
+
+    values[values.len() / 2]
 }
