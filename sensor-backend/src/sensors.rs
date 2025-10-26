@@ -29,8 +29,8 @@ pub struct SensorCandidate {
 #[derive(Clone, Serialize)]
 pub struct Trilateration {
     pub fingerprint: u64,
-    pub latitude: f64,
-    pub longitude: f64,
+    pub lat: f64,
+    pub lon: f64,
 }
 
 type MeasurementsMap = HashMap<u64, HashMap<u8, VecDeque<(i8, Instant)>>>;
@@ -105,15 +105,14 @@ impl SensorService {
             drop(s_lock);
 
             if let Some(candidates) = candidates {
-                let (latitude, longitude) =
-                    trilaterate(&candidates[0], &candidates[1], &candidates[2]).await;
+                let (lat, lon) = trilaterate(&candidates[0], &candidates[1], &candidates[2]).await;
 
                 let mut t_lock = self.trilaterations.write().await;
 
                 let trilateration = Trilateration {
                     fingerprint,
-                    latitude,
-                    longitude,
+                    lat,
+                    lon,
                 };
 
                 t_lock.insert(fingerprint, trilateration);
