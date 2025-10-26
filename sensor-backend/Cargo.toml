@@ -8,6 +8,7 @@ sensor-lib = { path = "../sensor-lib" }
 
 anyhow = "1.0"
 axum = { version = "0.8", features = ["ws"] }
+nalgebra = "0.34"
 postcard = "1.1"
 tokio = { version = "1.48", features = ["full"] }
 tower-http = { version = "0.6", features = ["cors"] }

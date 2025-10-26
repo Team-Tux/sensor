@@ -6,6 +6,7 @@ use serde::Serialize;
 use tokio::sync::RwLock;
 use tokio::time::Instant;
 
+use crate::coords::transform_local_to_global;
 use crate::rssi::{calculate_rssi_median, trilaterate};
 
 const MIN_MEASUREMENT_ENTRIES: usize = 3;
@@ -14,14 +15,16 @@ const MAX_MEASUREMENT_AGE: Duration = Duration::from_secs(60);
 #[derive(Clone, Serialize)]
 pub struct Sensor {
     pub id: u8,
+    pub x: f64,
+    pub y: f64,
     pub lat: f64,
     pub lon: f64,
     pub environment: Environment,
 }
 
 pub struct SensorCandidate {
-    pub latitude: f64,
-    pub longitude: f64,
+    pub y: f64,
+    pub x: f64,
     pub environment: Environment,
     pub rssi: i8,
 }
@@ -29,6 +32,8 @@ pub struct SensorCandidate {
 #[derive(Clone, Serialize)]
 pub struct Trilateration {
     pub fingerprint: u64,
+    pub y: f64,
+    pub x: f64,
     pub lat: f64,
     pub lon: f64,
 }
@@ -53,6 +58,8 @@ impl SensorService {
     pub async fn add_sensor(
         &self,
         id: u8,
+        y: f64,
+        x: f64,
         latitude: f64,
         longitude: f64,
         environment: Environment,
@@ -61,6 +68,8 @@ impl SensorService {
 
         let sensor = Sensor {
             id,
+            y,
+            x,
             lat: latitude,
             lon: longitude,
             environment,
@@ -94,8 +103,8 @@ impl SensorService {
                     let rssi = calculate_rssi_median(queue);
 
                     s_lock.get(id).map(|sensor| SensorCandidate {
-                        latitude: sensor.lat,
-                        longitude: sensor.lon,
+                        y: sensor.y,
+                        x: sensor.x,
                         environment: sensor.environment,
                         rssi,
                     })
@@ -105,12 +114,23 @@ impl SensorService {
             drop(s_lock);
 
             if let Some(candidates) = candidates {
-                let (lat, lon) = trilaterate(&candidates[0], &candidates[1], &candidates[2]).await;
+                let (y, x) = trilaterate(&candidates[0], &candidates[1], &candidates[2]).await;
+
+                let s_lock = self.sensors.read().await;
+                let sensors: Vec<&Sensor> = s_lock.values().collect();
+
+                let (lat, lon) =
+                    transform_local_to_global(x, y, sensors[0], sensors[1], sensors[2])
+                        .unwrap_or((0.0, 0.0));
+
+                drop(s_lock);
 
                 let mut t_lock = self.trilaterations.write().await;
 
                 let trilateration = Trilateration {
                     fingerprint,
+                    y,
+                    x,
                     lat,
                     lon,
                 };

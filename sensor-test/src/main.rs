@@ -1,6 +1,7 @@
+use std::net::UdpSocket;
+
 use sensor_lib::Environment::FreeSpace;
 use sensor_lib::SensorPacket;
-use std::net::UdpSocket;
 
 fn main() -> anyhow::Result<()> {
     let socket = UdpSocket::bind("0.0.0.0:0")?;
@@ -8,8 +9,10 @@ fn main() -> anyhow::Result<()> {
 
     let packet = SensorPacket {
         sensor_id: 1,
-        latitude: 0.0,
-        longitude: 0.0,
+        y: 0.0,
+        x: 0.0,
+        latitude: 50.56484445024739,
+        longitude: 9.684520461933687,
         rssi: -50,
         fingerprint: 0xABC123,
         environment: FreeSpace,
@@ -20,8 +23,10 @@ fn main() -> anyhow::Result<()> {
 
     let packet = SensorPacket {
         sensor_id: 2,
-        latitude: 0.0,
-        longitude: 4.0,
+        y: 0.0,
+        x: 4.0,
+        latitude: 50.56494466501721,
+        longitude: 9.684520461933687,
         rssi: -50,
         fingerprint: 0xABC123,
         environment: FreeSpace,
@@ -32,8 +37,10 @@ fn main() -> anyhow::Result<()> {
 
     let packet = SensorPacket {
         sensor_id: 3,
-        latitude: 3.0,
-        longitude: 2.0,
+        y: 3.0,
+        x: 2.0,
+        latitude: 50.5648945576323,
+        longitude: 9.684697512562593,
         rssi: -50,
         fingerprint: 0xABC123,
         environment: FreeSpace,

@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SensorPacket {
     pub sensor_id: u8,
+    pub y: f64,
+    pub x: f64,
     pub latitude: f64,
     pub longitude: f64,
     pub environment: Environment,

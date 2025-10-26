@@ -10,6 +10,7 @@ use crate::listener::run_packet_listener;
 use crate::sensors::SensorService;
 
 mod api;
+mod coords;
 mod listener;
 mod rssi;
 mod sensors;

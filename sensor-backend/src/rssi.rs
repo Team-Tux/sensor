@@ -22,24 +22,20 @@ pub async fn trilaterate(
     let d2 = rssi_to_distance(s2.rssi as f64, s2.environment);
     let d3 = rssi_to_distance(s3.rssi as f64, s3.environment);
 
-    let a = 2.0 * (s2.longitude - s1.longitude);
-    let b = 2.0 * (s2.latitude - s1.latitude);
-    let c = d1.powi(2) - d2.powi(2) + s2.longitude.powi(2) - s1.longitude.powi(2)
-        + s2.latitude.powi(2)
-        - s1.latitude.powi(2);
+    let a = 2.0 * (s2.x - s1.x);
+    let b = 2.0 * (s2.y - s1.y);
+    let c = d1.powi(2) - d2.powi(2) + s2.x.powi(2) - s1.x.powi(2) + s2.y.powi(2) - s1.y.powi(2);
 
-    let d = 2.0 * (s3.longitude - s2.longitude);
-    let e = 2.0 * (s3.latitude - s2.latitude);
-    let f = d2.powi(2) - d3.powi(2) + s3.longitude.powi(2) - s2.longitude.powi(2)
-        + s3.latitude.powi(2)
-        - s2.latitude.powi(2);
+    let d = 2.0 * (s3.x - s2.x);
+    let e = 2.0 * (s3.y - s2.y);
+    let f = d2.powi(2) - d3.powi(2) + s3.x.powi(2) - s2.x.powi(2) + s3.y.powi(2) - s2.y.powi(2);
 
     let denom = (a * e) - (b * d);
 
-    let longitude = (c * e - b * f) / denom;
-    let latitude = (a * f - c * d) / denom;
+    let x = (c * e - b * f) / denom;
+    let y = (a * f - c * d) / denom;
 
-    (latitude, longitude)
+    (y, x)
 }
 
 pub fn calculate_rssi_median(queue: &VecDeque<(i8, Instant)>) -> i8 {
