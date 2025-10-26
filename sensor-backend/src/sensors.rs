@@ -14,8 +14,8 @@ const MAX_MEASUREMENT_AGE: Duration = Duration::from_secs(60);
 #[derive(Clone, Serialize)]
 pub struct Sensor {
     pub id: u8,
-    pub latitude: f64,
-    pub longitude: f64,
+    pub lat: f64,
+    pub lon: f64,
     pub environment: Environment,
 }
 
@@ -61,8 +61,8 @@ impl SensorService {
 
         let sensor = Sensor {
             id,
-            latitude,
-            longitude,
+            lat: latitude,
+            lon: longitude,
             environment,
         };
 
@@ -94,8 +94,8 @@ impl SensorService {
                     let rssi = calculate_rssi_median(queue);
 
                     s_lock.get(id).map(|sensor| SensorCandidate {
-                        latitude: sensor.latitude,
-                        longitude: sensor.longitude,
+                        latitude: sensor.lat,
+                        longitude: sensor.lon,
                         environment: sensor.environment,
                         rssi,
                     })
