@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
-members = ["sensor-backend", "sensor-lib", "sensor-test"]
+members = ["sensor-backend", "sensor-lib", "sensor-node-config-cli", "sensor-test"]
+exclude = ["sensor-node"]
 
 [workspace.package]
 version = "0.1.0"
