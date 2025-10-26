@@ -65,7 +65,7 @@ async fn main(spawner: Spawner) {
         #[cfg(feature = "esp32c6")]
         let rx_pin = peripherals.GPIO17;
 
-        let uart =  esp_hal::uart::Uart::new(
+        let uart = esp_hal::uart::Uart::new(
             peripherals.UART0,
             esp_hal::uart::Config::default()
                 .with_rx(esp_hal::uart::RxConfig::default().with_fifo_full_threshold(64))

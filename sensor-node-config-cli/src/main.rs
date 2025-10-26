@@ -1,5 +1,5 @@
 use clap::Parser;
-use sensor_lib::{Environment, SensorConfig, SensorPacket};
+use sensor_lib::{Environment, SensorConfig};
 use std::error::Error;
 use std::io::Write;
 use std::net::Ipv4Addr;
@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         environment: Environment::FreeSpace,
     })?;
 
-    serial_port.write(&config_data)?;
+    let _ = serial_port.write(&config_data)?;
 
     Ok(())
 }
