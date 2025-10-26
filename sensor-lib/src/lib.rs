@@ -1,6 +1,26 @@
 #![no_std]
 
+use core::net::Ipv4Addr;
 use serde::{Deserialize, Serialize};
+
+const MAX_SSID_LENGTH: usize = 32;
+const MAX_WIFI_PASSWORD_LENGTH: usize = 63;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SensorConfig {
+    pub collector_network_ssid: heapless::String<MAX_SSID_LENGTH>,
+    pub collector_network_password: heapless::String<MAX_WIFI_PASSWORD_LENGTH>,
+
+    pub collector_service_ip: Ipv4Addr,
+    pub collector_service_port: u16,
+
+    pub sensor_id: u8,
+    pub y: f64,
+    pub x: f64,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub environment: Environment,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SensorPacket {
