@@ -80,4 +80,4 @@ The following image illustrates the positioning results of target devices (red d
 
 ![Example](.github/example.png)
 
-While the system demonstrates practical viability, achieving reliable estimations is highly dependent on significant fine-tuning, with the calibration of individual sensor nodes being the most critical factor.
+While the system demonstrates practical viability, achieving reliable estimations is highly dependent on significant fine-tuning, with the calibration of individual sensor nodes being the most critical factor. Future enhancements could also replace the median calculation with a Kalman filter to provide superior stateful smoothing of the volatile RSSI data.
